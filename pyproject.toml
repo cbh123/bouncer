@@ -1,7 +1,7 @@
 [project]
-name = "screener"
+name = "bouncer"
 version = "0.1.0"
-description = "Add your description here"
+description = "Bouncer screens iMessages for you, and lets you know when you get important ones."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

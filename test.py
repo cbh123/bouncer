@@ -1,3 +1,3 @@
-import main
+import bouncer
 
-print(main.determine_importance("Hello, how are you?"))
+print(bouncer.determine_importance("Hello, how are you?"))
