@@ -7,8 +7,13 @@ from colorama import Fore, Style
 import json
 import subprocess
 
-# Feel free to edit this prompt to change the criteria for your bouncer.
-GATEKEEPER_PROMPT = """
+################################## CUSTOMIZE YOUR BOUNCER ##################################
+
+# Give your bouncer a secret word to look out for:
+SHIBBOLETH = "gazooga"
+
+# Give your bouncer some guidance on what's important for you:
+GATEKEEPER_PROMPT = f"""
 You are a helpful assistant that determines the importance of messages.
 
 You can use your own judgement, but texts that are important are usually:
@@ -16,9 +21,10 @@ You can use your own judgement, but texts that are important are usually:
 - Time sensitive/urgent. For example, if the message is about a deadline, or includes a time constraint.
 - Serious sounding. Like 'I'm in trouble' or 'Hey can we talk'
 - Anything where the sender is asking for help.
-- Anything where the sender includes the code word 'BANANA'
+- Anything where the sender includes the word '{SHIBBOLETH}' (case insensitive)
 </rules>
 """
+############################################################################################
 
 
 DB_PATH = f"/Users/{os.getenv('USER')}/Library/Messages/chat.db"
@@ -74,6 +80,7 @@ def determine_importance(text):
 
     Text: {text}
     """
+    print(prompt)
 
     request_payload = {
         "model": "llama3.2",
