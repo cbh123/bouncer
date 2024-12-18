@@ -7,7 +7,22 @@ from colorama import Fore, Style
 import json
 import subprocess
 
-DB_PATH = "/Users/charlie/Library/Messages/chat.db"
+# Feel free to edit this prompt to change the criteria for your bouncer.
+GATEKEEPER_PROMPT = """
+You are a helpful assistant that determines the importance of messages.
+
+You can use your own judgement, but texts that are important are usually:
+<rules>
+- Time sensitive/urgent. For example, if the message is about a deadline, or includes a time constraint.
+- Serious sounding. Like 'I'm in trouble' or 'Hey can we talk'
+- Anything where the sender is asking for help.
+- Anything where the sender includes the code word 'BANANA'
+</rules>
+"""
+
+
+DB_PATH = f"/Users/{os.getenv('USER')}/Library/Messages/chat.db"
+
 
 def get_current_max_date():
     """
@@ -25,6 +40,7 @@ def get_current_max_date():
     conn.close()
 
     return result[0] if result and result[0] else 0
+
 
 def get_new_messages_since(threshold_date):
     """
@@ -51,8 +67,13 @@ def get_new_messages_since(threshold_date):
     conn.close()
     return results
 
+
 def determine_importance(text):
-    prompt = f"Is the following text important? Please answer yes or no, then explain briefly.\n\nText: {text}"
+    prompt = f"""
+    {GATEKEEPER_PROMPT}
+
+    Text: {text}
+    """
 
     request_payload = {
         "model": "llama3.2",
@@ -82,6 +103,7 @@ def determine_importance(text):
     parsed_response = json.loads(response_json['response'])
     return parsed_response
 
+
 def send_notification(title, message, sender):
     """
     Sends a system notification using osascript (macOS only) with a button to open iMessage
@@ -92,7 +114,7 @@ def send_notification(title, message, sender):
     sender = sender.replace('"', '\\"')
     
     apple_script = '''
-    display alert "{}" message "{}" buttons {{"Open iMessage", "OK"}}
+    display alert "{}" message "{}" buttons {{"Ignore", "Open iMessage"}} default button "Open iMessage"
     if button returned of result = "Open iMessage" then
         tell application "Messages"
             activate
@@ -103,6 +125,7 @@ def send_notification(title, message, sender):
     '''.format(title, message, "", sender)
     
     subprocess.run(['osascript', '-e', apple_script])
+
 
 if __name__ == "__main__":
     colorama.init(autoreset=True)
