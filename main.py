@@ -28,13 +28,51 @@ You can use your own judgement, but texts that are important are usually:
 
 
 DB_PATH = f"/Users/{os.getenv('USER')}/Library/Messages/chat.db"
+MODEL = "llama3.2"
+INTERVAL_SECONDS = 2
+
+""" 
+Health check: Ollama server is running and accessible
+"""
+def check_ollama_server():
+    try:
+        response = requests.get("http://localhost:11434")
+        if response.status_code != 200:
+            raise ConnectionError
+    except (requests.exceptions.ConnectionError, ConnectionError):
+        print(f"{Fore.RED}Error: Ollama server is not running{Style.RESET_ALL}")
+        print("\nPlease install Ollama with `brew install ollama` and start it with `ollama serve`. \n\nThen run `ollama run llama3.2` to make sure llama3.2 is installed (this is configured in the MODEL variable).")
+        exit(1)
 
 
+""" 
+Checks if the Messages database is accessible
+"""
+def check_db_access():
+    if not os.path.isfile(DB_PATH):
+        print(f"{Fore.RED}Error: Messages database not found at '{DB_PATH}'{Style.RESET_ALL}")
+        exit(1)
+    
+    try:
+        uri = f"file:{DB_PATH}?mode=ro"
+        sqlite3.connect(uri, uri=True)
+    except sqlite3.OperationalError:
+        print(f"{Fore.RED}Error: Cannot access Messages database{Style.RESET_ALL}")
+        print(f"Please grant Full Disk Access permission to the application that is running this script.")
+        
+        # Open System Settings to Full Disk Access
+        subprocess.run([
+            'open', 
+            'x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles'
+        ])
+        exit(1)
+
+
+""" 
+Returns the maximum date value (integer) found in the 'message' table.
+If the table is empty, returns 0.
+"""
 def get_current_max_date():
-    """
-    Returns the maximum date value (integer) found in the 'message' table.
-    If the table is empty, returns 0.
-    """
     if not os.path.isfile(DB_PATH):
         raise FileNotFoundError(f"Database not found at '{DB_PATH}'")
 
@@ -48,11 +86,11 @@ def get_current_max_date():
     return result[0] if result and result[0] else 0
 
 
+""" 
+Fetches messages with a 'date' > threshold_date.
+Only new messages that arrived after threshold_date will appear.
+"""
 def get_new_messages_since(threshold_date):
-    """
-    Fetches messages with a 'date' > threshold_date.
-    This way, only new messages that arrived after threshold_date will appear.
-    """
     if not os.path.isfile(DB_PATH):
         raise FileNotFoundError(f"Database not found at '{DB_PATH}'")
 
@@ -74,16 +112,18 @@ def get_new_messages_since(threshold_date):
     return results
 
 
+""" 
+Sends a request to the local AI to determine if a message is important.
+"""
 def determine_importance(text):
     prompt = f"""
     {GATEKEEPER_PROMPT}
 
     Text: {text}
     """
-    print(prompt)
 
     request_payload = {
-        "model": "llama3.2",
+        "model": MODEL,
         "prompt": prompt,
         "stream": False,
         "format": {
@@ -106,11 +146,14 @@ def determine_importance(text):
         headers={"Content-Type": "application/json"},
         json=request_payload
     )
+    
     response_json = response.json()
     parsed_response = json.loads(response_json['response'])
     return parsed_response
 
-
+""" 
+Sends a system notification using osascript (macOS only) with a button to open iMessage
+"""
 def send_notification(title, message, sender):
     """
     Sends a system notification using osascript (macOS only) with a button to open iMessage
@@ -137,6 +180,10 @@ def send_notification(title, message, sender):
 if __name__ == "__main__":
     colorama.init(autoreset=True)
     
+    # Add initial checks
+    check_ollama_server()
+    check_db_access()
+    
     # Capture the current max 'date' from DB so we only listen for new arrivals
     last_date_fetched = get_current_max_date()
 
@@ -152,7 +199,7 @@ if __name__ == "__main__":
             if max_date_in_new_msgs > last_date_fetched:
                 last_date_fetched = max_date_in_new_msgs
 
-            # Process each new message
+            # Process new message
             for msg_date, text, sender in msgs:
                 if (text, sender) not in read_messages:
                     print(f"{Fore.GREEN}New message from {sender}:{Style.RESET_ALL} {text}")
@@ -171,4 +218,4 @@ if __name__ == "__main__":
                     read_messages.add((text, sender))
 
         print(f"{Fore.CYAN}Listening for new messages...{Style.RESET_ALL}")
-        time.sleep(2)  # Check every 2 seconds
+        time.sleep(INTERVAL_SECONDS) 
