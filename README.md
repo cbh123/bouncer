@@ -23,7 +23,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 brew install ollama
 
 # clone the repo
-git clone https://github.com/meltylabs/bouncer.git
+git clone https://github.com/meltylabs/bouncer.git && cd bouncer
 
 # run the bouncer
 uv run bouncer.py
