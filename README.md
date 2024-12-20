@@ -4,7 +4,7 @@ I often get distracted checking my messages app on my Mac. So I created Bouncer 
 
 Bouncer is free, completely private, and open source.
 
-Here's how it works:
+How it works:
 - Every 2 seconds, Bouncer checks the local iMessage DB.
 - When a new one comes in, it asks a *locally* running llama3.2 if the message is important OR if the message contains a special Shibboleth word.
   - If important, Bouncer sends me a notification with a link to open the message window and respond.
