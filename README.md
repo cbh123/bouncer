@@ -6,9 +6,19 @@ Bouncer screens iMessages for you, and lets you know when you get important ones
 
 ## Setup
 
-0. Install [Ollama](https://ollama.ai/) and [uv](https://docs.astral.sh/uv/)
-1. Clone the repo `git clone https://github.com/meltylabs/bouncer.git`
-2. Run with `uv run bouncer.py`
+```
+# install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# install ollama
+brew install ollama
+
+# clone the repo
+git clone https://github.com/meltylabs/bouncer.git
+
+# run the bouncer
+uv run bouncer.py
+```
 
 ## Customize your bouncer
 
