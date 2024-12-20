@@ -14,14 +14,12 @@ SHIBBOLETH = "babadook"
 
 # Give your bouncer some guidance on what's important for you:
 GATEKEEPER_PROMPT = f"""
-You are a helpful assistant that determines the importance of messages.
+You are a helpful assistant that determines whether a message is important or urgent enough to send a notification.
 
-You can use your own judgement, but texts that are important are usually:
-<rules>
+Here are some guidelines:
 - Time sensitive/urgent. For example, if the message is about a deadline, or includes a time constraint.
 - Serious sounding. Like 'I'm in trouble' or 'Hey can we talk'
-- Anything where the sender is asking for help.
-</rules>
+- Sender is asking for help.
 """
 ############################################################################################
 
@@ -130,11 +128,11 @@ def determine_importance(text):
             "properties": {
                 "important": {
                     "type": "boolean",
-                    "description": "Whether the message is important"
+                    "description": "Whether the message is important or urgent"
                 },
                 "explanation": {
                     "type": "string",
-                    "description": "A brief explanation for why the message is important"
+                    "description": "A brief explanation for why the message is important or urgent"
                 }
             },
             "required": ["important", "explanation"]
@@ -145,7 +143,7 @@ def determine_importance(text):
         headers={"Content-Type": "application/json"},
         json=request_payload
     )
-    
+
     response_json = response.json()
     parsed_response = json.loads(response_json['response'])
     return parsed_response
@@ -205,14 +203,14 @@ if __name__ == "__main__":
 
                     response = determine_importance(text)
                     if response['important'] or SHIBBOLETH in text.lower():
-                        print(f"{Fore.YELLOW}{response['explanation']}{Style.RESET_ALL}")
+                        print(f"{Fore.RED}NOTIFYING: {response['explanation']}{Style.RESET_ALL}")
                         send_notification(
                             title=f"Message from {sender}",
                             message=text,
                             sender=sender
                         )
                     else:
-                        print(f"{Fore.BLUE}Message is not important{Style.RESET_ALL}")
+                        print(f"{Fore.BLUE}BOUNCING: {response['explanation']}{Style.RESET_ALL}")
 
                     read_messages.add((text, sender))
 
