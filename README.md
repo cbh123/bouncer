@@ -1,6 +1,6 @@
 # Bouncer
 
-I often get distracted checking my messages app on my Mac. So I created Bouncer to notify me when I get anything important. 
+I often get distracted checking my messages app. So I created Bouncer to notify me when I get anything important.
 
 Bouncer is free, completely private, and open source.
 
