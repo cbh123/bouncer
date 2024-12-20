@@ -10,7 +10,6 @@ How it works:
   - If important, Bouncer sends me a notification with a link to open the message window and respond.
   - If not, Bouncer screens it out and I continue my day distraction free :)
 
-## Demo
 ![bouncer](https://github.com/user-attachments/assets/b1f240d5-1a1d-412f-9fac-b88efb962b10)
 
 
