@@ -182,7 +182,7 @@ def send_notification(title, message, sender):
 if __name__ == "__main__":
     colorama.init(autoreset=True)
     
-    # Add initial checks
+    # Initial checks
     check_ollama_server()
     check_db_access()
     
