@@ -1,9 +1,16 @@
 # Bouncer
 
-Bouncer screens iMessages for you, and lets you know when you get important ones.
+I often get distracted checking my new messages on my Mac. So I created my very own Bouncer to notify me when I get anything important. Bouncer is free, completely private, and open source.
+
+Here's how it works:
+- Every 2 seconds, Bouncer checks the local iMessage database
+- When a new one comes in, it asks a locally running llama3.2 if the message is important OR if the message contains a special Shibboleth word.
+  - If important, Bouncer sends me a notification with a link to open the message window and respond.
+  - If not, Bouncer screens it out and I continue my day distraction free :)
 
 ## Demo
-![Uploading bouncer.gif…]()
+![bouncer](https://github.com/user-attachments/assets/b1f240d5-1a1d-412f-9fac-b88efb962b10)
+
 
 ## Setup
 
