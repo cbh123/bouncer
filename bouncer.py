@@ -9,8 +9,8 @@ import subprocess
 
 ################################## CUSTOMIZE YOUR BOUNCER ##################################
 
-# Give your bouncer a secret word to look out for:
-SHIBBOLETH = "gazooga"
+# Give your bouncer a secret word to look out for that will always let you in:
+SHIBBOLETH = "babadook"
 
 # Give your bouncer some guidance on what's important for you:
 GATEKEEPER_PROMPT = f"""
@@ -21,7 +21,6 @@ You can use your own judgement, but texts that are important are usually:
 - Time sensitive/urgent. For example, if the message is about a deadline, or includes a time constraint.
 - Serious sounding. Like 'I'm in trouble' or 'Hey can we talk'
 - Anything where the sender is asking for help.
-- Anything where the sender includes the word '{SHIBBOLETH}' (case insensitive)
 </rules>
 """
 ############################################################################################
@@ -205,7 +204,7 @@ if __name__ == "__main__":
                     print(f"{Fore.GREEN}New message from {sender}:{Style.RESET_ALL} {text}")
 
                     response = determine_importance(text)
-                    if response['important']:
+                    if response['important'] or SHIBBOLETH in text.lower():
                         print(f"{Fore.YELLOW}{response['explanation']}{Style.RESET_ALL}")
                         send_notification(
                             title=f"Message from {sender}",
