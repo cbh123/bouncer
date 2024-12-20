@@ -112,7 +112,7 @@ def get_new_messages_since(threshold_date):
 """ 
 Sends a request to the local AI to determine if a message is important.
 """
-def determine_importance(text):
+def determine_importance(text, shibboleth=SHIBBOLETH):
     prompt = f"""
     {GATEKEEPER_PROMPT}
 
@@ -146,6 +146,11 @@ def determine_importance(text):
 
     response_json = response.json()
     parsed_response = json.loads(response_json['response'])
+
+    if shibboleth in text.lower():
+        parsed_response["important"] = True
+        parsed_response["explanation"] = "Shibboleth detected"
+
     return parsed_response
 
 """ 
@@ -201,8 +206,8 @@ if __name__ == "__main__":
                 if (text, sender) not in read_messages:
                     print(f"{Fore.GREEN}New message from {sender}:{Style.RESET_ALL} {text}")
 
-                    response = determine_importance(text)
-                    if response['important'] or SHIBBOLETH in text.lower():
+                    response = determine_importance(text, shibboleth=SHIBBOLETH)
+                    if response['important']:
                         print(f"{Fore.RED}NOTIFYING: {response['explanation']}{Style.RESET_ALL}")
                         send_notification(
                             title=f"Message from {sender}",
